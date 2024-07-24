@@ -1,0 +1,40 @@
+name: Release RemoteIO
+
+on:
+  push:
+    tags:
+      - v*.*.*
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Pack files
+        run: |
+          tar -czf remoteIO-${{ github.ref }}.tar.gz .
+          ls -lh
+
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with: 
+          tag_name: ${{ github.ref }}
+          release_name: RemoteIO ${{ github.ref }}
+          draft: false
+          prerelease: false
+    
+      - name: Upload tar.gz
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: .
+          asset_name: /remoteIO-${{ github.ref }}.tar.gz
+          asset_content_type: application/gzip
