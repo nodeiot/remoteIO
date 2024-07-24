@@ -15,7 +15,7 @@ jobs:
         
       - name: Pack files
         run: |
-          tar -czf remoteIO.tar.gz .
+          tar -czf remoteIO.tar.gz remoteIO/
           ls -lh
 
       - name: Create release
