@@ -14,10 +14,10 @@
 
 #define JSON_DOCUMENT_CAPACITY 4096
 
-#define INICIALIZATION 0    // First state after start, never connected to nodeiot. 
-#define CONNECTED 1         // Connected to nodeiot, available to esp_now as well.
-#define NO_WIFI 2           // No Wi-Fi network, disconnected from nodeiot.
-#define DISCONNECTED 3      // No websocket connection, disconnected from nodeiot.
+#define INICIALIZATION 0    
+#define CONNECTED 1         
+#define NO_WIFI 2           
+#define DISCONNECTED 3      
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
@@ -26,13 +26,14 @@
 #include <ArduinoOTA.h>
 #include <AsyncJson.h>
 #include <ESPAsyncWebServer.h>
-#include <DNSServer.h>
+#include <SPIFFS.h>
 #include <Preferences.h>
 #include <WiFiClientSecure.h>
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <AsyncTCP.h>
 #include <ESPmDNS.h>
+#include <esp_task_wdt.h>
 
 class RemoteIO 
 {
@@ -62,14 +63,11 @@ class RemoteIO
     void checkResetting(long timeInterval);
     int espPOST(String Router, String variable, String value);
 
-    /*Variáveis de armazenamento*/
     StaticJsonDocument<JSON_DOCUMENT_CAPACITY> configurationDocument;
     JsonArray configurations;
 
-    // Armazenamento não volátil para guardar as configurações do dispositivo
     Preferences* deviceConfig;
     
-    /*Variáveis para rotinas de comunicação*/
     SocketIOclient socketIO;
     AsyncWebServer* server;
 
@@ -82,9 +80,9 @@ class RemoteIO
     String _companyName;
     String _deviceId;
     String _appHost;
+    String _model;
     uint16_t _appPort;
 
-    /*Rotas de comunicação local e nuvem*/
     String anchor_route;
     String anchored_route;
     
@@ -95,25 +93,21 @@ class RemoteIO
     String appPostData;
     String appPostDataFromAnchored;
 
-    /*Time variables*/
     long start_debounce_time;
     long start_browsing_time;
     long start_reconnect_time;
     long start_config_time; 
     long start_reset_time;
 
-    /*Configuração do device*/
     String state;
     String token;
 
-    /*Buffers*/
     String anchor_IP;
     String anchored_IP;
     String send_to_niot_buffer;
     String send_to_anchor_buffer;
     String send_to_anchored_buffer;
 
-    /*Variáveis para controle de fluxo de execução*/
     int connection_state;
     int next_state;
 
